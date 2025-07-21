@@ -1,7 +1,6 @@
 const fetch = require('node-fetch');
 
-exports.handler = async function (event, context) {
-  // Handle preflight CORS request
+exports.handler = async function (event) {
   if (event.httpMethod === 'OPTIONS') {
     return {
       statusCode: 200,
@@ -17,33 +16,32 @@ exports.handler = async function (event, context) {
   const token = process.env.DS_TOKEN;
 
   try {
-    const response = await fetch('https://www.dreamingspanish.com/.netlify/functions/dayWatchedTime', {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const headers = {
+      Authorization: `Bearer ${token}`,
+    };
 
-    if (!response.ok) {
-      throw new Error(`Dreaming Spanish API responded with status ${response.status}`);
-    }
+    // Fetch daily time
+    const mainRes = await fetch('https://www.dreamingspanish.com/.netlify/functions/dayWatchedTime', { headers });
+    const mainData = await mainRes.json();
 
-    const data = await response.json();
+    // Fetch external time (onboarding)
+    const extRes = await fetch('https://www.dreamingspanish.com/.netlify/functions/externalTime', { headers });
+    const extData = await extRes.json();
+    const externalSeconds = extData?.externalTimes?.[0]?.timeSeconds || 0;
 
     return {
       statusCode: 200,
       headers: {
-        'Access-Control-Allow-Origin': '*', // 👈 this is the CORS fix
+        'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Headers': 'Content-Type',
         'Access-Control-Allow-Methods': 'GET, OPTIONS',
       },
-      body: JSON.stringify(data),
+      body: JSON.stringify({ daily: mainData, externalSeconds }),
     };
   } catch (error) {
     return {
       statusCode: 502,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-      },
+      headers: { 'Access-Control-Allow-Origin': '*' },
       body: JSON.stringify({ error: error.message }),
     };
   }
