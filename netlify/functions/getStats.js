@@ -18,8 +18,14 @@ exports.handler = async function (event, context) {
   }
 
   const data = await response.json();
-  return {
-    statusCode: 200,
-    body: JSON.stringify(data),
+return {
+  statusCode: 200,
+  headers: {
+    'Access-Control-Allow-Origin': '*', // 👈 allows any origin
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Allow-Methods': 'GET',
+  },
+  body: JSON.stringify(data),
+};
   };
 };
