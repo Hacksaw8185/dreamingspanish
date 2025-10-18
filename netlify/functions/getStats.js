@@ -21,11 +21,11 @@ exports.handler = async function (event) {
     };
 
     // Fetch daily time
-    const mainRes = await fetch('https://www.dreamingspanish.com/.netlify/functions/dayWatchedTime', { headers });
+    const mainRes = await fetch('https://app.dreaming.com/.netlify/functions/dayWatchedTime', { headers });
     const mainData = await mainRes.json();
 
     // Fetch external time (onboarding)
-    const extRes = await fetch('https://www.dreamingspanish.com/.netlify/functions/externalTime', { headers });
+    const extRes = await fetch('https://app.dreaming.com/.netlify/functions/externalTime', { headers });
     const extData = await extRes.json();
     const externalSeconds = extData?.externalTimes?.[0]?.timeSeconds || 0;
 
